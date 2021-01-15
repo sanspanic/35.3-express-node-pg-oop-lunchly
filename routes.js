@@ -11,7 +11,17 @@ const router = new express.Router();
 
 router.get("/", async function (req, res, next) {
   try {
-    const customers = await Customer.all();
+    let customers;
+    //implement search
+    if (req.query.name) {
+      customers = await Customer.search(req.query.name);
+    } else {
+      customers = await Customer.all();
+    }
+    if (customers.length === 0) {
+      const msg = `No customers matching search term ${req.query.name} were found.`;
+      return res.render("customer_list.html", { msg });
+    }
     return res.render("customer_list.html", { customers });
   } catch (err) {
     return next(err);
